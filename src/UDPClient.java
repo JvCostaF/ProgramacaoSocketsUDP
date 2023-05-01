@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.net.*;
+import java.nio.charset.Charset;
 import java.util.*;
 
 public class UDPClient {
@@ -32,7 +33,23 @@ public class UDPClient {
         byte[] palavraAReceber = new byte[1024];
         DatagramPacket pacoteAReceber = new DatagramPacket(palavraAReceber, palavraAReceber.length);
         socketCliente.receive(pacoteAReceber);
-        String palavraRecebida = new String(pacoteAReceber.getData());
+        /* Verificando os bytes não nulos
+         * */
+        int count = 0;
+        for(byte b: pacoteAReceber.getData()){
+            if (b!=0){
+                count++;
+            }
+        }
+        byte[] bytesValidos = new byte[count];
+        int i = 0;
+        for (byte b: pacoteAReceber.getData()){
+            if (b != 0){
+                bytesValidos[i] = b;
+                i++;
+            }
+        }
+        String palavraRecebida = new String(bytesValidos, Charset.forName("UTF-8")).toUpperCase();
         System.out.println("DO SERVIDOR: " + palavraRecebida);
 
         /*
