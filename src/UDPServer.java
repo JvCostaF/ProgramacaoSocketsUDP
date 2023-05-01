@@ -4,31 +4,36 @@ import java.net.*;
 public class UDPServer {
     public static void main(String[] args) throws IOException {
 
-        DatagramSocket serverSocket = new DatagramSocket(4000);
+        DatagramSocket socketServidor = new DatagramSocket(4000);
+        System.out.println("SERVIDOR OUVINDO");
 
-        byte[] dadosParaReceber = new byte[1024];
-        byte[] dadosParaEnviar = new byte[1024];
+        /*
+        Recebendo requisição do cliente
+         */
+        byte[] palavraAReceber = new byte[1024];
+        DatagramPacket pacoteAReceber = new DatagramPacket(palavraAReceber, palavraAReceber.length);
+        socketServidor.receive(pacoteAReceber);
+        String palavraRecebida = new String(pacoteAReceber.getData());
+        System.out.println("DO CLIENTE: " + palavraRecebida);
 
-        while (true) {
-            DatagramPacket pacoteParaReceber = new DatagramPacket(dadosParaReceber, dadosParaReceber.length);
+        /*
+        Enviando resposta ao cliente
+         */
+        byte[] palavraAEnviar = new byte[1024];
+        String palavraModificada = palavraRecebida.toUpperCase();
+        palavraAEnviar = palavraModificada.getBytes();
+        InetAddress IPCLiente = pacoteAReceber.getAddress();
+        int portaCliente = pacoteAReceber.getPort();
 
-            serverSocket.receive(pacoteParaReceber);
+        DatagramPacket pacoteAEnviar = new DatagramPacket(palavraAEnviar, palavraAEnviar.length, IPCLiente, portaCliente);
+        socketServidor.send(pacoteAEnviar);
 
-            String frase = new String(pacoteParaReceber.getData());
-
-            InetAddress enderecoIP = pacoteParaReceber.getAddress();
-
-            int porta = pacoteParaReceber.getPort();
-
-            String fraseMaiuscula = frase.toUpperCase();
-
-            dadosParaEnviar = fraseMaiuscula.getBytes();
-
-            DatagramPacket pacoteParaEnviar = new DatagramPacket(dadosParaEnviar, dadosParaEnviar.length, enderecoIP, porta);
-
-            serverSocket.send(pacoteParaEnviar);
-
-        }
+        /*
+        Finalizando a conexão
+         */
+        socketServidor.close();
 
     }
 }
+
+

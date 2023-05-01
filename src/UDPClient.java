@@ -1,37 +1,44 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.*;
+import java.util.*;
 
 public class UDPClient {
     public static void main(String[] args) throws IOException {
 
-        BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-
+        /*
+        Inicializando o socketCliente do Cliente
+         */
         DatagramSocket socketCliente = new DatagramSocket();
 
-        InetAddress IPAddress = InetAddress.getByName("localhost");
+        /*
+        Recebendo dados do usuário
+         */
+        System.out.println("Digite uma palavra: ");
+        Scanner sc = new Scanner(System.in);
+        String palavra = sc.nextLine();
 
-        byte[] dadosParaEnviar = new byte[1024];
-        byte[] dadosParaReceber = new byte[1024];
+        /*
+        Conectando-se ao servidor e enviando a palavra digitada pelo usuário
+         */
+        byte[] palavraAEnviar = new  byte[1024];
+        palavraAEnviar = palavra.getBytes();
+        InetAddress IP = InetAddress.getByName("localhost");
+        DatagramPacket pacoteAEnviar = new DatagramPacket(palavraAEnviar,palavraAEnviar.length, IP, 4000);
+        socketCliente.send(pacoteAEnviar);
 
-        String frase = inFromUser.readLine();
+        /*
+        Recebendo a resposta do Servidor
+         */
+        byte[] palavraAReceber = new byte[1024];
+        DatagramPacket pacoteAReceber = new DatagramPacket(palavraAReceber, palavraAReceber.length);
+        socketCliente.receive(pacoteAReceber);
+        String palavraRecebida = new String(pacoteAReceber.getData());
+        System.out.println("DO SERVIDOR: " + palavraRecebida);
 
-        DatagramPacket pacoteParaEnviar = (new DatagramPacket(dadosParaEnviar, dadosParaEnviar.length, IPAddress,4000));
-
-        socketCliente.send(pacoteParaEnviar);
-
-        DatagramPacket pacoteRecebido = new DatagramPacket(dadosParaReceber,dadosParaReceber.length);
-
-        socketCliente.receive(pacoteRecebido);
-
-        String fraseModificada = new String(pacoteRecebido.getData());
-
-        System.out.println("FROM SERVER: " + fraseModificada);
-
+        /*
+        Finalizando a conexão
+         */
         socketCliente.close();
+
     }
 }
